@@ -1,0 +1,10 @@
+/* Keep layout padding simple. */
+.logo {
+  display: none;
+}
+
+body {
+  background: radial-gradient(circle at 20% 20%, #f0f7ff 0, transparent 30%),
+    radial-gradient(circle at 80% 0%, #f3eefc 0, transparent 28%),
+    #f5f7fb;
+}
