@@ -16,7 +16,7 @@ npm run build      # production build
 ## Using the app (for users)
 1. Open the app in your browser (dev server or deployed URL).
 2. Go to **Rates / Settings**.
-3. Paste a working exchange-rates JSON URL that returns:
+3. Paste a working exchange-rates JSON URL (https://rates-json.onrender.com/rates.json) that returns:
    ```json
    {"USD":1,"GBP":0.6,"EURO":0.7,"ILS":3.4}
    ```
