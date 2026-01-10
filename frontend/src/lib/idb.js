@@ -10,6 +10,7 @@ export function openCostsDB(databaseName = DB_NAME, databaseVersion = DB_VERSION
   return new Promise((resolve, reject) => {
     // Start the async open request.
     const request = indexedDB.open(databaseName, databaseVersion);
+    // Create stores during the upgrade flow.
     request.onupgradeneeded = () => {
       const db = request.result;
       // Create the costs store when missing.
@@ -22,18 +23,21 @@ export function openCostsDB(databaseName = DB_NAME, databaseVersion = DB_VERSION
         db.createObjectStore(SETTINGS_STORE, { keyPath: 'key' });
       }
     };
+    // Surface any open errors.
     request.onerror = () => {
       reject(request.error);
     };
     request.onsuccess = () => {
       // Resolve with a small API surface.
       resolve({
+        // API methods bound to this DB instance.
         addCost: (cost) => addCost(request.result, cost),
         getReport: (year, month, currency, rates) => getReport(request.result, year, month, currency, rates),
         getYearlySummary: (year, currency, rates) => getYearlySummary(request.result, year, currency, rates),
         saveSettings: (url) => saveRatesUrl(request.result, url),
         loadSettings: () => loadRatesUrl(request.result),
       });
+      // End of the success handler.
     };
   });
 }
@@ -41,19 +45,31 @@ export function openCostsDB(databaseName = DB_NAME, databaseVersion = DB_VERSION
 // Adds a cost item, stamping current date.
 export function addCost(db, cost) {
   return new Promise((resolve, reject) => {
+    // Start a write transaction for the costs store.
     const tx = db.transaction(COSTS_STORE, 'readwrite');
     const store = tx.objectStore(COSTS_STORE);
     const now = new Date();
+    // Normalize the incoming sum.
+    const sum = Number(cost.sum);
+    // Payload stored in IndexedDB.
     const payload = {
-      sum: Number(cost.sum),
+      sum,
       currency: cost.currency,
       category: cost.category,
       description: cost.description,
       date: now.toISOString(),
     };
+    // API result that matches the spec shape.
+    const result = {
+      sum,
+      currency: cost.currency,
+      category: cost.category,
+      description: cost.description,
+    };
     // Write the record.
     const addRequest = store.add(payload);
-    tx.oncomplete = () => resolve(payload);
+    // Resolve when the transaction completes.
+    tx.oncomplete = () => resolve(result);
     tx.onerror = () => reject(tx.error);
     addRequest.onerror = () => reject(addRequest.error);
   });
@@ -62,10 +78,12 @@ export function addCost(db, cost) {
 // Fetches the monthly report with conversion.
 export function getReport(db, year, month, currency, rates) {
   return new Promise((resolve, reject) => {
+    // Readonly transaction for report data.
     const tx = db.transaction(COSTS_STORE, 'readonly');
     const store = tx.objectStore(COSTS_STORE);
     const cursorRequest = store.openCursor();
     const costs = [];
+    let total = 0;
     // Walk over all rows.
     cursorRequest.onsuccess = () => {
       const cursor = cursorRequest.result;
@@ -73,20 +91,24 @@ export function getReport(db, year, month, currency, rates) {
         const value = cursor.value;
         const itemDate = new Date(value.date);
         if (itemDate.getFullYear() === year && itemDate.getMonth() + 1 === month) {
+          // Convert to the requested currency for totals.
           const convertedSum = convertAmount(value.sum, value.currency, currency, rates);
+          total += convertedSum;
+          // Keep original currency and sum on each row.
           costs.push({
-            sum: convertedSum,
-            currency,
+            sum: value.sum,
+            currency: value.currency,
             category: value.category,
             description: value.description,
+            // Store the day for report display.
             Date: { day: itemDate.getDate() },
           });
         }
+        // Continue cursor traversal.
         cursor.continue();
         return;
       }
       // Aggregate totals after traversal.
-      const total = costs.reduce((acc, item) => acc + item.sum, 0);
       resolve({ year, month, costs, total: { currency, total } });
     };
     cursorRequest.onerror = () => reject(cursorRequest.error);
@@ -97,23 +119,29 @@ export function getReport(db, year, month, currency, rates) {
 // Builds yearly totals per month for charting.
 export function getYearlySummary(db, year, currency, rates) {
   return new Promise((resolve, reject) => {
+    // Readonly transaction for yearly totals.
     const tx = db.transaction(COSTS_STORE, 'readonly');
     const store = tx.objectStore(COSTS_STORE);
     const cursorRequest = store.openCursor();
+    // Bucket totals for each month.
     const buckets = Array.from({ length: 12 }, () => 0);
+    // Iterate through each cursor entry.
     cursorRequest.onsuccess = () => {
       const cursor = cursorRequest.result;
       if (cursor) {
         const value = cursor.value;
         const itemDate = new Date(value.date);
         if (itemDate.getFullYear() === year) {
+          // Convert each item into the selected currency.
           const idx = itemDate.getMonth();
           const convertedSum = convertAmount(value.sum, value.currency, currency, rates);
           buckets[idx] += convertedSum;
         }
+        // Continue cursor traversal.
         cursor.continue();
         return;
       }
+      // Resolve with the monthly totals.
       resolve({ year, currency, totals: buckets });
     };
     cursorRequest.onerror = () => reject(cursorRequest.error);
@@ -124,9 +152,11 @@ export function getYearlySummary(db, year, currency, rates) {
 // Saves rates URL into settings store.
 export function saveRatesUrl(db, url) {
   return new Promise((resolve, reject) => {
+    // Persist the URL in the settings store.
     const tx = db.transaction(SETTINGS_STORE, 'readwrite');
     const store = tx.objectStore(SETTINGS_STORE);
     store.put({ key: 'ratesUrl', value: url });
+    // Resolve after the transaction completes.
     tx.oncomplete = () => resolve(url);
     tx.onerror = () => reject(tx.error);
   });
@@ -135,11 +165,13 @@ export function saveRatesUrl(db, url) {
 // Loads rates URL from the store.
 export function loadRatesUrl(db) {
   return new Promise((resolve, reject) => {
+    // Read the URL from the settings store.
     const tx = db.transaction(SETTINGS_STORE, 'readonly');
     const store = tx.objectStore(SETTINGS_STORE);
     const request = store.get('ratesUrl');
     request.onsuccess = () => {
       const record = request.result;
+      // Default to an empty string when missing.
       resolve(record ? record.value : '');
     };
     request.onerror = () => reject(request.error);
@@ -153,6 +185,7 @@ export function convertAmount(amount, from, to, rates) {
   if (!rates || !rates[from] || !rates[to]) {
     return Number(amount);
   }
+  // Normalize to USD then convert to target.
   const amountInUsd = Number(amount) / rates[from];
   return amountInUsd * rates[to];
 }

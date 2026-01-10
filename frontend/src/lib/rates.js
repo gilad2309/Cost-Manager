@@ -7,10 +7,13 @@ export async function fetchRates(url) {
   if (!url) {
     return defaultRates();
   }
+  // Fetch the remote JSON response.
   const response = await fetch(url);
+  // Validate HTTP success.
   if (!response.ok) {
     throw new Error('Failed fetching rates');
   }
+  // Parse JSON payload.
   const data = await response.json();
   // Ensure required currencies exist.
   const required = ['USD', 'GBP', 'EURO', 'ILS'];
@@ -18,6 +21,7 @@ export async function fetchRates(url) {
   if (missing.length > 0) {
     throw new Error('Rates response missing keys');
   }
+  // Coerce values into numbers.
   return {
     USD: Number(data.USD),
     GBP: Number(data.GBP),

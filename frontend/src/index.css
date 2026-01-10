@@ -1,15 +1,18 @@
+/* Base typography and background styling. */
 :root {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   background-color: #f5f7fb;
   color: #1f2937;
+  /* Font rendering tweaks. */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Base body layout and size constraints. */
 body {
   margin: 0;
   min-width: 320px;
@@ -17,6 +20,7 @@ body {
   background-color: #f5f7fb;
 }
 
+/* Ensure the root takes full height. */
 #root {
   min-height: 100vh;
 }
