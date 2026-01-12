@@ -6,7 +6,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 
-function PieChartCard({ data, currency }) {
+function PieChartCard({ data, currency, periodLabel }) {
   // Empty state guard.
   if (!data || data.length === 0) {
     return (
@@ -30,6 +30,11 @@ function PieChartCard({ data, currency }) {
   const chartBody = (
     <CardContent>
       <Typography variant="h6" gutterBottom>Category Breakdown</Typography>
+      {periodLabel ? (
+        <Typography variant="body2" color="text.secondary" gutterBottom>
+          {periodLabel}
+        </Typography>
+      ) : null}
       <Pie data={chartData} />
     </CardContent>
   );

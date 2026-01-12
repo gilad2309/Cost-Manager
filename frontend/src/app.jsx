@@ -37,6 +37,20 @@ ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearS
 
 // Supported currencies per instructions.
 const currencyOptions = ['USD', 'ILS', 'GBP', 'EURO'];
+const monthLabels = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
 const DEFAULT_RATES_URL = 'https://rates-json.onrender.com/rates.json';
 
 function App() {
@@ -64,6 +78,12 @@ function App() {
   const handleFetchRates = useCallback(async (url, showPreview = false) => {
     // Normalize the URL and fall back to the default.
     const trimmedUrl = (url || '').trim();
+    if (showPreview && !trimmedUrl) {
+      setRates(defaultRates());
+      setPreviewRates(null);
+      setStatus('Using default rates (fetch failed).');
+      return false;
+    }
     const effectiveUrl = trimmedUrl ? trimmedUrl : DEFAULT_RATES_URL;
     // Notify the user while loading.
     setStatus('Fetching rates...');
@@ -95,12 +115,22 @@ function App() {
     }
     // Load report data and yearly totals.
     setLoading(true);
-    const rep = await db.getReport(filters.year, filters.month, filters.currency, rates);
-    const yearly = await db.getYearlySummary(filters.year, filters.currency, rates);
-    // Store results in state.
-    setReport(rep);
-    setYearlyData(yearly);
-    setLoading(false);
+    try {
+      const rep = await db.getReport(filters.year, filters.month, filters.currency, rates);
+      const yearly = await db.getYearlySummary(filters.year, filters.currency, rates);
+      // Store results in state.
+      setReport(rep);
+      setYearlyData(yearly);
+    } catch (error) {
+      void error;
+      setReport(null);
+      setYearlyData(null);
+      openCostsDB().then((database) => {
+        setDb(database);
+      });
+    } finally {
+      setLoading(false);
+    }
   }, [db, filters.currency, filters.month, filters.year, rates]);
 
   // Open the database on mount.
@@ -129,7 +159,17 @@ function App() {
       return;
     }
     // Persist the cost and refresh totals.
-    await db.addCost(cost);
+    try {
+      await db.addCost(cost);
+      setStatus('Cost item added.');
+      refreshReport();
+      return;
+    } catch (error) {
+      void error;
+    }
+    const nextDb = await openCostsDB();
+    setDb(nextDb);
+    await nextDb.addCost(cost);
     setStatus('Cost item added.');
     refreshReport();
   };
@@ -218,7 +258,11 @@ function App() {
   // Pie chart grid cell.
   const pieChartCell = (
     <Grid size={{ xs: 12, md: 6 }}>
-      <PieChartCard data={pieData} currency={filters.currency} />
+      <PieChartCard
+        data={pieData}
+        currency={filters.currency}
+        periodLabel={`${monthLabels[filters.month - 1]} ${filters.year}`}
+      />
     </Grid>
   );
   // Bar chart grid cell.

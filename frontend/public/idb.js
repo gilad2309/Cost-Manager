@@ -1,5 +1,4 @@
 // Vanilla IndexedDB helper - attaches idb to the global object.
-// Keep semicolons and short comments to satisfy the style guide.
 (function attachIdb() {
   // Local constants for database structure.
   const DB_NAME = 'costsdb';
@@ -49,19 +48,23 @@
         // Expose a small API wrapper.
         resolve({
           // Methods bound to this DB instance.
-          addCost: (cost) => addCost(db, cost),
-          getReport: (year, month, currency, rates) => getReport(db, year, month, currency, rates),
-          getYearlySummary: (year, currency, rates) => getYearlySummary(db, year, currency, rates),
-          saveSettings: (url) => saveRatesUrl(db, url),
-          loadSettings: () => loadRatesUrl(db),
+          addCost: addCostWithDb.bind(null, db),
+          getReport: getReportWithDb.bind(null, db),
+          getYearlySummary: getYearlySummaryWithDb.bind(null, db),
+          saveSettings: saveRatesUrlWithDb.bind(null, db),
+          loadSettings: loadRatesUrlWithDb.bind(null, db),
         });
         // End of open success handler.
       };
     });
   }
 
+  function addCost(cost) {
+    return openCostsDB().then((database) => database.addCost(cost));
+  }
+
   // Adds a cost item with current date.
-  function addCost(db, cost) {
+  function addCostWithDb(db, cost) {
     return new Promise((resolve, reject) => {
       // Write transaction for the costs store.
       const tx = db.transaction(COSTS_STORE, 'readwrite');
@@ -92,8 +95,13 @@
     });
   }
 
+  function getReport(year, month, currency) {
+    const rates = arguments[3];
+    return openCostsDB().then((database) => database.getReport(year, month, currency, rates));
+  }
+
   // Gets a monthly report and converts currency when rates exist.
-  function getReport(db, year, month, currency, rates) {
+  function getReportWithDb(db, year, month, currency, rates) {
     return new Promise((resolve, reject) => {
       // Readonly transaction for report data.
       const tx = db.transaction(COSTS_STORE, 'readonly');
@@ -102,6 +110,7 @@
       const cursorRequest = store.openCursor();
       const costs = [];
       let total = 0;
+      const effectiveRates = rates || defaultRates();
       // Track totals for matching entries.
       cursorRequest.onsuccess = () => {
         const cursor = cursorRequest.result;
@@ -110,7 +119,7 @@
           const d = new Date(value.date);
           if (d.getFullYear() === year && d.getMonth() + 1 === month) {
             // Convert each item into the target currency for totals.
-            const convertedSum = convertAmount(value.sum, value.currency, currency, rates);
+            const convertedSum = convertAmount(value.sum, value.currency, currency, effectiveRates);
             total += convertedSum;
             // Preserve the original currency on each row.
             costs.push({
@@ -134,8 +143,13 @@
     });
   }
 
+  function getYearlySummary(year, currency) {
+    const rates = arguments[2];
+    return openCostsDB().then((database) => database.getYearlySummary(year, currency, rates));
+  }
+
   // Summarizes a full year for chart needs.
-  function getYearlySummary(db, year, currency, rates) {
+  function getYearlySummaryWithDb(db, year, currency, rates) {
     return new Promise((resolve, reject) => {
       // Readonly transaction for yearly totals.
       const tx = db.transaction(COSTS_STORE, 'readonly');
@@ -143,6 +157,7 @@
       const cursorRequest = store.openCursor();
       // Bucket totals by month.
       const buckets = Array.from({ length: 12 }, () => 0);
+      const effectiveRates = rates || defaultRates();
       // Iterate through yearly cursor entries.
       cursorRequest.onsuccess = () => {
         const cursor = cursorRequest.result;
@@ -152,7 +167,7 @@
           if (d.getFullYear() === year) {
             const idx = d.getMonth();
             // Convert item into the target currency.
-            buckets[idx] += convertAmount(value.sum, value.currency, currency, rates);
+            buckets[idx] += convertAmount(value.sum, value.currency, currency, effectiveRates);
           }
           // Continue scanning the store.
           cursor.continue();
@@ -166,8 +181,16 @@
     });
   }
 
+  function saveRatesUrl(url) {
+    return openCostsDB().then((database) => database.saveSettings(url));
+  }
+
+  function loadRatesUrl() {
+    return openCostsDB().then((database) => database.loadSettings());
+  }
+
   // Saves the rates URL to the settings store.
-  function saveRatesUrl(db, url) {
+  function saveRatesUrlWithDb(db, url) {
     return new Promise((resolve, reject) => {
       // Write the URL value.
       const tx = db.transaction(SETTINGS_STORE, 'readwrite');
@@ -180,7 +203,7 @@
   }
 
   // Loads the rates URL from the settings store.
-  function loadRatesUrl(db) {
+  function loadRatesUrlWithDb(db) {
     return new Promise((resolve, reject) => {
       // Read the URL value.
       const tx = db.transaction(SETTINGS_STORE, 'readonly');

@@ -29,21 +29,27 @@ export function openCostsDB(databaseName = DB_NAME, databaseVersion = DB_VERSION
     };
     request.onsuccess = () => {
       // Resolve with a small API surface.
+      // Bind the DB instance so callers use the 3-argument signature.
+      const db = request.result;
       resolve({
         // API methods bound to this DB instance.
-        addCost: (cost) => addCost(request.result, cost),
-        getReport: (year, month, currency, rates) => getReport(request.result, year, month, currency, rates),
-        getYearlySummary: (year, currency, rates) => getYearlySummary(request.result, year, currency, rates),
-        saveSettings: (url) => saveRatesUrl(request.result, url),
-        loadSettings: () => loadRatesUrl(request.result),
+        addCost: addCostWithDb.bind(null, db),
+        getReport: getReportWithDb.bind(null, db),
+        getYearlySummary: getYearlySummaryWithDb.bind(null, db),
+        saveSettings: saveRatesUrlWithDb.bind(null, db),
+        loadSettings: loadRatesUrlWithDb.bind(null, db),
       });
       // End of the success handler.
     };
   });
 }
 
+export function addCost(cost) {
+  return openCostsDB().then((database) => database.addCost(cost));
+}
+
 // Adds a cost item, stamping current date.
-export function addCost(db, cost) {
+function addCostWithDb(db, cost) {
   return new Promise((resolve, reject) => {
     // Start a write transaction for the costs store.
     const tx = db.transaction(COSTS_STORE, 'readwrite');
@@ -75,8 +81,13 @@ export function addCost(db, cost) {
   });
 }
 
+export function getReport(year, month, currency) {
+  const rates = arguments[3];
+  return openCostsDB().then((database) => database.getReport(year, month, currency, rates));
+}
+
 // Fetches the monthly report with conversion.
-export function getReport(db, year, month, currency, rates) {
+function getReportWithDb(db, year, month, currency, rates) {
   return new Promise((resolve, reject) => {
     // Readonly transaction for report data.
     const tx = db.transaction(COSTS_STORE, 'readonly');
@@ -84,6 +95,7 @@ export function getReport(db, year, month, currency, rates) {
     const cursorRequest = store.openCursor();
     const costs = [];
     let total = 0;
+    const effectiveRates = rates || defaultRates();
     // Walk over all rows.
     cursorRequest.onsuccess = () => {
       const cursor = cursorRequest.result;
@@ -92,7 +104,7 @@ export function getReport(db, year, month, currency, rates) {
         const itemDate = new Date(value.date);
         if (itemDate.getFullYear() === year && itemDate.getMonth() + 1 === month) {
           // Convert to the requested currency for totals.
-          const convertedSum = convertAmount(value.sum, value.currency, currency, rates);
+          const convertedSum = convertAmount(value.sum, value.currency, currency, effectiveRates);
           total += convertedSum;
           // Keep original currency and sum on each row.
           costs.push({
@@ -116,8 +128,13 @@ export function getReport(db, year, month, currency, rates) {
   });
 }
 
+export function getYearlySummary(year, currency) {
+  const rates = arguments[2];
+  return openCostsDB().then((database) => database.getYearlySummary(year, currency, rates));
+}
+
 // Builds yearly totals per month for charting.
-export function getYearlySummary(db, year, currency, rates) {
+function getYearlySummaryWithDb(db, year, currency, rates) {
   return new Promise((resolve, reject) => {
     // Readonly transaction for yearly totals.
     const tx = db.transaction(COSTS_STORE, 'readonly');
@@ -125,6 +142,7 @@ export function getYearlySummary(db, year, currency, rates) {
     const cursorRequest = store.openCursor();
     // Bucket totals for each month.
     const buckets = Array.from({ length: 12 }, () => 0);
+    const effectiveRates = rates || defaultRates();
     // Iterate through each cursor entry.
     cursorRequest.onsuccess = () => {
       const cursor = cursorRequest.result;
@@ -134,7 +152,7 @@ export function getYearlySummary(db, year, currency, rates) {
         if (itemDate.getFullYear() === year) {
           // Convert each item into the selected currency.
           const idx = itemDate.getMonth();
-          const convertedSum = convertAmount(value.sum, value.currency, currency, rates);
+          const convertedSum = convertAmount(value.sum, value.currency, currency, effectiveRates);
           buckets[idx] += convertedSum;
         }
         // Continue cursor traversal.
@@ -149,8 +167,16 @@ export function getYearlySummary(db, year, currency, rates) {
   });
 }
 
+export function saveRatesUrl(url) {
+  return openCostsDB().then((database) => database.saveSettings(url));
+}
+
+export function loadRatesUrl() {
+  return openCostsDB().then((database) => database.loadSettings());
+}
+
 // Saves rates URL into settings store.
-export function saveRatesUrl(db, url) {
+function saveRatesUrlWithDb(db, url) {
   return new Promise((resolve, reject) => {
     // Persist the URL in the settings store.
     const tx = db.transaction(SETTINGS_STORE, 'readwrite');
@@ -163,7 +189,7 @@ export function saveRatesUrl(db, url) {
 }
 
 // Loads rates URL from the store.
-export function loadRatesUrl(db) {
+function loadRatesUrlWithDb(db) {
   return new Promise((resolve, reject) => {
     // Read the URL from the settings store.
     const tx = db.transaction(SETTINGS_STORE, 'readonly');
