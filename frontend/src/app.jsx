@@ -230,18 +230,30 @@ function App() {
   };
 
   // Status banner element when a message is available.
-  const statusBanner = status ? <Alert severity="info" className="status-banner">{status}</Alert> : null;
+  // Alert spacing mirrors the previous UI polish from ui.css.
+  const statusBanner = status ? (
+    <Alert severity="info" sx={{
+      alignItems: 'center',
+      px: 1.5,
+      py: 0.75,
+      borderRadius: 1.5,
+      '& .MuiAlert-icon': { mr: 1, p: 0 },
+      '& .MuiAlert-message': { p: 0 },
+    }}>
+      {status}
+    </Alert>
+  ) : null;
   // Navigation control row.
   const navTabs = <NavTabs view={view} onNavigate={setView} />;
   const headerStack = (
-    <Stack spacing={1} className="app__header-stack">
+    <Stack spacing={1} sx={{ alignItems: 'flex-start' }}>
       {statusBanner}
       {navTabs}
     </Stack>
   );
   // Report content with loading fallback.
   const reportContent = loading ? (
-    <Box className="app__loading">
+    <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
       <CircularProgress />
     </Box>
   ) : (
@@ -359,7 +371,7 @@ function App() {
   );
   // Container wrapping the main content.
   const pageContainer = (
-    <Container maxWidth="lg" className="app__container">
+    <Container maxWidth="lg" sx={{ py: 3 }}>
       {pageStack}
     </Container>
   );
@@ -471,7 +483,7 @@ function SectionCard({ title, subtitle, children }) {
   );
   // Render the section shell.
   return (
-    <Paper elevation={1} className="section-card">
+    <Paper elevation={1} sx={{ p: 3, borderRadius: 2, backgroundColor: 'background.paper' }}>
       {sectionBody}
     </Paper>
   );
@@ -486,11 +498,35 @@ function NavTabs({ view, onNavigate }) {
     void event;
     onNavigate(next);
   };
+  // Shared tab styling keeps the navigation consistent with the previous UI.
+  const tabSx = {
+    minHeight: 44,
+    px: 1,
+    py: 0.75,
+    textTransform: 'none',
+    fontWeight: 600,
+    color: 'text.secondary',
+    borderRadius: 1.25,
+    transition: 'color 160ms ease, background-color 160ms ease',
+    '&.Mui-selected': { color: 'text.primary' },
+    '&:hover': { color: 'text.primary', backgroundColor: 'rgba(14, 165, 165, 0.12)' },
+  };
+  // Tab spacing and indicator styles match the prior UI treatment.
+  const tabsSx = (theme) => ({
+    minHeight: 44,
+    '& .MuiTabs-flexContainer': { gap: 1.25 },
+    '& .MuiTabs-indicator': {
+      height: 3,
+      borderRadius: 999,
+      backgroundColor: theme.palette.secondary.main,
+    },
+  });
   return (
     // Tab list with accent indicator.
-    <Tabs value={view} onChange={handleChange} className="nav-tabs">
-      <Tab label="Home" value="home" className="nav-tabs__tab" /><Tab label="Charts" value="charts"
-        className="nav-tabs__tab" /><Tab label="Rates / Settings" value="settings" className="nav-tabs__tab" />
+    <Tabs value={view} onChange={handleChange} sx={tabsSx}>
+      <Tab label="Home" value="home" sx={tabSx} />
+      <Tab label="Charts" value="charts" sx={tabSx} />
+      <Tab label="Rates / Settings" value="settings" sx={tabSx} />
     </Tabs>
   );
 }
@@ -522,7 +558,7 @@ function RatesPreview({ rates }) {
   );
   // Render the rates list.
   return (
-    <Box className="rates-preview">
+    <Box sx={{ border: 1, borderColor: 'divider', borderRadius: 1.5, p: 2 }}>
       {ratesTitle}
       {ratesList}
     </Box>

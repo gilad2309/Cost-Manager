@@ -16,7 +16,11 @@ function BarChartCard({ data, currency }) {
   // When no totals exist, render a friendly message.
   if (!data || !data.totals || data.totals.every((v) => v === 0)) {
     return (
-      <Card><CardContent><Typography variant="body1">No data for the bar chart.</Typography></CardContent></Card>
+      <Card>
+        <CardContent>
+          <Typography variant="body1">No data for the bar chart.</Typography>
+        </CardContent>
+      </Card>
     );
   }
   // Prepare the dataset for Chart.js.
@@ -57,16 +61,21 @@ function BarChartCard({ data, currency }) {
     },
   };
   // Compose the chart content block.
+  // Extra line-height prevents clipped glyphs in the heading.
   const chartBody = (
     <CardContent>
-      <Typography variant="h6" gutterBottom>Yearly Overview</Typography>
-      <Typography variant="body2" color="text.secondary" gutterBottom>Totals shown in {currency}</Typography>
-      <Box className="bar-chart__plot"><Bar data={chartData} options={chartOptions} /></Box>
+      <Typography variant="h6" gutterBottom sx={{ lineHeight: 1.5, pb: 0.25 }}>
+        Yearly Overview
+      </Typography>
+      <Typography variant="body2" color="text.secondary" gutterBottom sx={{ lineHeight: 1.5, pb: 0.25 }}>
+        Totals shown in {currency}
+      </Typography>
+      <Box sx={{ height: 280 }}><Bar data={chartData} options={chartOptions} /></Box>
     </CardContent>
   );
   // Render the chart card.
   return (
-    <Card className="bar-chart__card">
+    <Card sx={{ height: '100%' }}>
       {chartBody}
     </Card>
   );

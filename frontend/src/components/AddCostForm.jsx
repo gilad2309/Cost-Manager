@@ -107,7 +107,7 @@ function AddCostForm({ onAdd }) {
   // Group the fields for the form grid.
   const formFields = (
     // Layout fields in a responsive grid.
-    <Grid container spacing={2} component="form" onSubmit={handleSubmit} className="add-cost-form__grid">
+    <Grid container spacing={2} component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
       {sumField}
       {currencyField}
       {categoryField}
@@ -116,7 +116,7 @@ function AddCostForm({ onAdd }) {
   );
   // Main card content with heading and fields.
   const cardContent = (
-    <CardContent className="add-cost-form__content">
+    <CardContent sx={{ pb: 0 }}>
       <Typography variant="h6" gutterBottom>Add Cost</Typography>
       {errorMessage}
       {formFields}
@@ -124,13 +124,13 @@ function AddCostForm({ onAdd }) {
   );
   // Action row for the submit button.
   const formActions = (
-    <CardActions className="add-cost-form__actions">
+    <CardActions sx={{ px: 2, pb: 2, pt: 0, mt: 1 }}>
       <Button type="submit" variant="contained" onClick={handleSubmit}>Save</Button>
     </CardActions>
   );
   // Render the form card.
   return (
-    <Card className="add-cost-form__card">
+    <Card sx={{ height: '100%' }}>
       {cardContent}
       {formActions}
     </Card>

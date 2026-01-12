@@ -8,7 +8,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // Global styles and app entry.
 import './index.css';
-import './ui.css';
 import App from './app.jsx';
 
 // Theme for a clean, professional dashboard aesthetic.

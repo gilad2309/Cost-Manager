@@ -65,16 +65,17 @@ function PieChartCard({ data, currency, periodLabel }) {
     },
   };
   // Compose the chart content block.
+  // Keep the chart height consistent with the bar chart card.
   const chartBody = (
     <CardContent>
       <Typography variant="h6" gutterBottom>Category Breakdown</Typography>
       {periodLabel ? (<Typography variant="body2" color="text.secondary" gutterBottom>{periodLabel}</Typography>) : null}
-      <Box className="pie-chart__plot"><Pie data={chartData} options={chartOptions} /></Box>
+      <Box sx={{ height: 280 }}><Pie data={chartData} options={chartOptions} /></Box>
     </CardContent>
   );
   // Render the chart card.
   return (
-    <Card className="pie-chart__card">
+    <Card sx={{ height: '100%' }}>
       {chartBody}
     </Card>
   );
