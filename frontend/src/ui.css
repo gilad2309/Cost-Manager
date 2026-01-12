@@ -65,6 +65,58 @@
   padding: 24px 0;
 }
 
+.app__header-stack {
+  align-items: flex-start;
+}
+
+.status-banner {
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 12px;
+}
+
+.status-banner .MuiAlert-icon {
+  margin-right: 8px;
+  padding: 0;
+}
+
+.status-banner .MuiAlert-message {
+  padding: 0;
+}
+
+.nav-tabs {
+  min-height: 44px;
+}
+
+.nav-tabs .MuiTabs-flexContainer {
+  gap: 10px;
+}
+
+.nav-tabs .MuiTabs-indicator {
+  height: 3px;
+  border-radius: 999px;
+  background-color: var(--app-accent);
+}
+
+.nav-tabs__tab {
+  min-height: 44px;
+  padding: 6px 8px;
+  text-transform: none;
+  font-weight: 600;
+  color: var(--app-muted);
+  border-radius: 10px;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+.nav-tabs__tab.Mui-selected {
+  color: var(--app-text);
+}
+
+.nav-tabs__tab:hover {
+  color: var(--app-text);
+  background-color: rgba(14, 165, 165, 0.12);
+}
+
 .section-card {
   padding: 24px;
   border-radius: 16px;

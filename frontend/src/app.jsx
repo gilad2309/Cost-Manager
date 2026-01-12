@@ -9,6 +9,8 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 // MUI typography and feedback.
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -222,9 +224,15 @@ function App() {
   };
 
   // Status banner element when a message is available.
-  const statusBanner = status ? <Alert severity="info">{status}</Alert> : null;
+  const statusBanner = status ? <Alert severity="info" className="status-banner">{status}</Alert> : null;
   // Navigation control row.
-  const navButtons = <NavButtons view={view} onNavigate={setView} />;
+  const navTabs = <NavTabs view={view} onNavigate={setView} />;
+  const headerStack = (
+    <Stack spacing={1} className="app__header-stack">
+      {statusBanner}
+      {navTabs}
+    </Stack>
+  );
   // Report content with loading fallback.
   const reportContent = loading ? (
     <Box className="app__loading">
@@ -338,8 +346,7 @@ function App() {
   // Stack layout for the main content.
   const pageStack = (
     <Stack spacing={3}>
-      {statusBanner}
-      {navButtons}
+      {headerStack}
       {viewContent}
     </Stack>
   );
@@ -466,40 +473,22 @@ function SectionCard({ title, subtitle, children }) {
 }
 
 // Navigation button row for view switching.
-function NavButtons({ view, onNavigate }) {
-  // Home navigation button.
-  const homeButton = (
-    <Button variant={view === 'home' ? 'contained' : 'outlined'} onClick={() => onNavigate('home')}>
-      Home
-    </Button>
-  );
-  // Charts navigation button.
-  const chartsButton = (
-    <Button variant={view === 'charts' ? 'contained' : 'outlined'} onClick={() => onNavigate('charts')}>
-      Charts
-    </Button>
-  );
-  // Settings navigation button.
-  const settingsButton = (
-    <Button variant={view === 'settings' ? 'contained' : 'outlined'} onClick={() => onNavigate('settings')}>
-      Rates / Settings
-    </Button>
-  );
-  // Button group for the primary navigation.
-  const navButtonsContent = (
-    <>
-      {homeButton}
-      {chartsButton}
-      {settingsButton}
-    </>
-  );
-  // Render the navigation buttons.
+function NavTabs({ view, onNavigate }) {
+  const handleChange = (event, next) => {
+    void event;
+    onNavigate(next);
+  };
   return (
-    <Box className="nav-buttons">
-      {navButtonsContent}
-    </Box>
+    <Tabs
+      value={view}
+      onChange={handleChange}
+      className="nav-tabs"
+    >
+      <Tab label="Home" value="home" className="nav-tabs__tab" />
+      <Tab label="Charts" value="charts" className="nav-tabs__tab" />
+      <Tab label="Rates / Settings" value="settings" className="nav-tabs__tab" />
+    </Tabs>
   );
-  // End of navigation render.
 }
 
 function RatesPreview({ rates }) {
