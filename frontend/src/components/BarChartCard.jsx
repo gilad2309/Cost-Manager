@@ -43,6 +43,8 @@ function BarChartCard({ data, currency }) {
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    resizeDelay: 120,
+    animation: { duration: 650, easing: 'easeOutQuart' },
     plugins: {
       legend: { display: false },
     },

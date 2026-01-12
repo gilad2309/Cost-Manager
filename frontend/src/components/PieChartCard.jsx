@@ -49,6 +49,8 @@ function PieChartCard({ data, currency, periodLabel }) {
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    resizeDelay: 120,
+    animation: { duration: 650, easing: 'easeOutQuart' },
     plugins: {
       // Legend styling for slice labels.
       legend: {
