@@ -227,7 +227,7 @@ function App() {
   const navButtons = <NavButtons view={view} onNavigate={setView} />;
   // Report content with loading fallback.
   const reportContent = loading ? (
-    <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+    <Box className="app__loading">
       <CircularProgress />
     </Box>
   ) : (
@@ -345,7 +345,7 @@ function App() {
   );
   // Container wrapping the main content.
   const pageContainer = (
-    <Container maxWidth="lg" sx={{ py: 3 }}>
+    <Container maxWidth="lg" className="app__container">
       {pageStack}
     </Container>
   );
@@ -457,7 +457,7 @@ function SectionCard({ title, subtitle, children }) {
   );
   // Render the section shell.
   return (
-    <Paper elevation={1} sx={{ p: 3, borderRadius: 2, backgroundColor: '#ffffff' }}>
+    <Paper elevation={1} className="section-card">
       {sectionBody}
     </Paper>
   );
@@ -495,7 +495,7 @@ function NavButtons({ view, onNavigate }) {
   );
   // Render the navigation buttons.
   return (
-    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+    <Box className="nav-buttons">
       {navButtonsContent}
     </Box>
   );
@@ -529,7 +529,7 @@ function RatesPreview({ rates }) {
   );
   // Render the rates list.
   return (
-    <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 1, p: 2 }}>
+    <Box className="rates-preview">
       {ratesTitle}
       {ratesList}
     </Box>

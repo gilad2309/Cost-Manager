@@ -14,7 +14,7 @@ function ReportTable({ report }) {
   // Early exit for empty state.
   if (!report || !report.costs || report.costs.length === 0) {
     return (
-      <Typography variant="body1" sx={{ my: 2 }}>
+      <Typography variant="body1" className="report-table__empty">
         No costs found for the selected month.
       </Typography>
     );
@@ -22,25 +22,30 @@ function ReportTable({ report }) {
   // Render table rows for each cost item.
   const rows = report.costs.map((row) => (
     <TableRow key={`${row.category}-${row.description}-${row.Date.day}`}>
-      <TableCell>{row.Date.day}</TableCell><TableCell>{row.category}</TableCell><TableCell>{row.description}</TableCell>
-      <TableCell>{row.currency}</TableCell><TableCell align="right">{row.sum.toFixed(2)}</TableCell>
+      <TableCell>{row.Date.day}</TableCell>
+      <TableCell>{row.category}</TableCell>
+      <TableCell>{row.description}</TableCell>
+      <TableCell>{row.currency}</TableCell>
+      <TableCell align="right">{row.sum.toFixed(2)}</TableCell>
     </TableRow>
   ));
   // Total row at the bottom of the table.
   const totalRow = (
-    <TableRow>
-      <TableCell colSpan={3} align="right"><strong>Total</strong></TableCell>
-      <TableCell>{report.total.currency}</TableCell>
-      <TableCell align="right"><strong>{report.total.total.toFixed(2)}</strong></TableCell>
+    <TableRow className="report-table__total-row">
+      <TableCell colSpan={3} align="right" className="report-table__total-cell">Total</TableCell>
+      <TableCell className="report-table__total-cell">{report.total.currency}</TableCell>
+      <TableCell align="right" className="report-table__total-cell">{report.total.total.toFixed(2)}</TableCell>
     </TableRow>
   );
   // Header row labels for the report table.
   const headerRow = (
     // Column headers for the report table.
     <TableRow>
-      <TableCell>Day</TableCell><TableCell>Category</TableCell>
-      <TableCell>Description</TableCell><TableCell>Currency</TableCell>
-      <TableCell align="right">Sum</TableCell>
+      <TableCell className="report-table__header-cell">Day</TableCell>
+      <TableCell className="report-table__header-cell">Category</TableCell>
+      <TableCell className="report-table__header-cell">Description</TableCell>
+      <TableCell className="report-table__header-cell">Currency</TableCell>
+      <TableCell align="right" className="report-table__header-cell">Sum</TableCell>
     </TableRow>
   );
   // Body rows including totals.
@@ -52,14 +57,14 @@ function ReportTable({ report }) {
   );
   // Table wrapper with header and body.
   const tableContent = (
-    <Table size="small">
+    <Table size="small" className="report-table__table">
       <TableHead>{headerRow}</TableHead>
       {tableBody}
     </Table>
   );
   // Render the report table.
   return (
-    <TableContainer component={Paper} sx={{ mt: 2 }}>
+    <TableContainer component={Paper} className="report-table__container">
       {tableContent}
     </TableContainer>
   );

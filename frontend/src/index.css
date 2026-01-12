@@ -1,10 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Sora:wght@500;600;700&display=swap');
+
 /* Base typography and background styling. */
 :root {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  line-height: 1.5;
+  font-family: 'IBM Plex Sans', 'Segoe UI', Arial, sans-serif;
+  line-height: 1.6;
   font-weight: 400;
-  background-color: #f5f7fb;
-  color: #1f2937;
+  background-color: #f6f8fb;
+  color: #0f172a;
+  --app-surface: #ffffff;
+  --app-surface-muted: #f1f4f9;
+  --app-border: #e1e6ef;
+  --app-text: #0f172a;
+  --app-muted: #55627a;
+  --app-accent: #0ea5a5;
   /* Font rendering tweaks. */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -12,12 +20,17 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 /* Base body layout and size constraints. */
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #f5f7fb;
+  background-color: #f6f8fb;
+  color: var(--app-text);
 }
 
 /* Ensure the root takes full height. */

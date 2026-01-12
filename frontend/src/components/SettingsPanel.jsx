@@ -38,20 +38,20 @@ function SettingsPanel({ initialUrl, onSave, onTest }) {
   };
 
   // Status message element when available.
-  const statusMessage = message ? <Alert severity="info">{message}</Alert> : null;
+  const statusMessage = message ? <Alert severity="info" className="settings-panel__alert">{message}</Alert> : null;
 
   // Input for the exchange rates URL.
   const urlField = (
     // Full-width input for the remote URL.
     <TextField
-      label="Exchange Rates URL" fullWidth sx={{ mt: 2 }}
+      label="Exchange Rates URL" fullWidth className="settings-panel__url"
       value={url} onChange={(e) => setUrl(e.target.value)}
       placeholder="https://example.com/rates.json"
     />
   );
   // Card body content for the settings form.
   const cardBody = (
-    <CardContent sx={{ pb: 0 }}>
+    <CardContent className="settings-panel__content">
       <Typography variant="h6" gutterBottom>Settings</Typography>
       {statusMessage}
       {urlField}
@@ -59,7 +59,7 @@ function SettingsPanel({ initialUrl, onSave, onTest }) {
   );
   // Action buttons for fetch and save.
   const actionButtons = (
-    <CardActions sx={{ px: 2, pb: 2, gap: 1 }}>
+    <CardActions className="settings-panel__actions">
       <Button variant="outlined" onClick={handleTest}>Test Fetch</Button>
       <Button variant="contained" onClick={handleSave}>Save</Button>
     </CardActions>
