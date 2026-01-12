@@ -70,12 +70,12 @@ function BarChartCard({ data, currency }) {
       <Typography variant="body2" color="text.secondary" gutterBottom sx={{ lineHeight: 1.5, pb: 0.25 }}>
         Totals shown in {currency}
       </Typography>
-      <Box sx={{ height: 280 }}><Bar data={chartData} options={chartOptions} /></Box>
+      <Box className="bar-chart__plot"><Bar data={chartData} options={chartOptions} /></Box>
     </CardContent>
   );
   // Render the chart card.
   return (
-    <Card sx={{ height: '100%' }}>
+    <Card className="bar-chart__card">
       {chartBody}
     </Card>
   );

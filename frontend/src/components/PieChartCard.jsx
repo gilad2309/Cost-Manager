@@ -70,12 +70,12 @@ function PieChartCard({ data, currency, periodLabel }) {
     <CardContent>
       <Typography variant="h6" gutterBottom>Category Breakdown</Typography>
       {periodLabel ? (<Typography variant="body2" color="text.secondary" gutterBottom>{periodLabel}</Typography>) : null}
-      <Box sx={{ height: 280 }}><Pie data={chartData} options={chartOptions} /></Box>
+      <Box className="pie-chart__plot"><Pie data={chartData} options={chartOptions} /></Box>
     </CardContent>
   );
   // Render the chart card.
   return (
-    <Card sx={{ height: '100%' }}>
+    <Card className="pie-chart__card">
       {chartBody}
     </Card>
   );

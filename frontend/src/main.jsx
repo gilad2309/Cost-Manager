@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 // MUI theme providers.
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import GlobalStyles from '@mui/material/GlobalStyles';
 // React Query client for async data.
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // Global styles and app entry.
@@ -97,12 +98,21 @@ const theme = createTheme({
 
 // React Query client for data fetching and caching.
 const queryClient = new QueryClient();
+// Ensure chart containers have stable sizes before Chart.js mounts.
+const chartGlobalStyles = {
+  '.bar-chart__card, .pie-chart__card': { height: '100%' },
+  '.bar-chart__plot, .pie-chart__plot': { height: 280 },
+};
 
 // Mount the React app and top-level providers.
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}><CssBaseline /><App /></ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <GlobalStyles styles={chartGlobalStyles} />
+        <App />
+      </ThemeProvider>
     </QueryClientProvider>
   </StrictMode>,
 );
