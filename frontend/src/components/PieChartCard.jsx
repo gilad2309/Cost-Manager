@@ -12,11 +12,13 @@ import { alpha, useTheme } from '@mui/material/styles';
 
 function PieChartCard({ data, currency, periodLabel }) {
   const theme = useTheme();
+  // Gate chart rendering to let layout settle before Chart.js mounts.
   const [renderChart, setRenderChart] = useState(false);
   // Wait for fonts/layout to settle before mounting the chart canvas.
   useEffect(() => {
     let isActive = true;
     const settleLayout = async () => {
+      // Ensure fonts are loaded before scheduling the first render.
       if (document.fonts && document.fonts.ready) {
         try {
           await document.fonts.ready;
@@ -24,6 +26,7 @@ function PieChartCard({ data, currency, periodLabel }) {
           void error;
         }
       }
+      // Defer mounting by two frames so layout settles before Chart.js animates.
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           if (isActive) {

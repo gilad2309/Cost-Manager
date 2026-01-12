@@ -15,11 +15,13 @@ const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 
 function BarChartCard({ data, currency }) {
   const theme = useTheme();
+  // Gate chart rendering to let layout settle before Chart.js mounts.
   const [renderChart, setRenderChart] = useState(false);
   // Wait for fonts/layout to settle before mounting the chart canvas.
   useEffect(() => {
     let isActive = true;
     const settleLayout = async () => {
+      // Ensure fonts are loaded before scheduling the first render.
       if (document.fonts && document.fonts.ready) {
         try {
           await document.fonts.ready;
@@ -27,6 +29,7 @@ function BarChartCard({ data, currency }) {
           void error;
         }
       }
+      // Defer mounting by two frames so layout settles before Chart.js animates.
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           if (isActive) {
