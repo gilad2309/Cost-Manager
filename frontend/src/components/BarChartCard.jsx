@@ -28,12 +28,14 @@ function BarChartCard({ data, currency }) {
         label: `Monthly totals (${currency})`,
         // Data values already converted to the selected currency.
         data: data.totals,
+        // Visual styling for the bars.
         backgroundColor: alpha(theme.palette.primary.main, 0.85),
         borderRadius: 8,
         maxBarThickness: 36,
       },
     ],
   };
+  // Chart scales and grid styling.
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -41,10 +43,12 @@ function BarChartCard({ data, currency }) {
       legend: { display: false },
     },
     scales: {
+      // X axis styling.
       x: {
         grid: { display: false },
         ticks: { color: theme.palette.text.secondary },
       },
+      // Y axis styling.
       y: {
         beginAtZero: true,
         grid: { color: alpha(theme.palette.primary.main, 0.12) },
@@ -56,12 +60,8 @@ function BarChartCard({ data, currency }) {
   const chartBody = (
     <CardContent>
       <Typography variant="h6" gutterBottom>Yearly Overview</Typography>
-      <Typography variant="body2" color="text.secondary" gutterBottom>
-        Totals shown in {currency}
-      </Typography>
-      <Box className="bar-chart__plot">
-        <Bar data={chartData} options={chartOptions} />
-      </Box>
+      <Typography variant="body2" color="text.secondary" gutterBottom>Totals shown in {currency}</Typography>
+      <Box className="bar-chart__plot"><Bar data={chartData} options={chartOptions} /></Box>
     </CardContent>
   );
   // Render the chart card.

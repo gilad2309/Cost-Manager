@@ -40,15 +40,19 @@ ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearS
 // Supported currencies per instructions.
 const currencyOptions = ['USD', 'ILS', 'GBP', 'EURO'];
 const monthLabels = [
+  // Q1 labels.
   'January',
   'February',
   'March',
+  // Q2 labels.
   'April',
   'May',
   'June',
+  // Q3 labels.
   'July',
   'August',
   'September',
+  // Q4 labels.
   'October',
   'November',
   'December',
@@ -127,6 +131,7 @@ function App() {
       void error;
       setReport(null);
       setYearlyData(null);
+      // Attempt to recover by reopening the DB.
       openCostsDB().then((database) => {
         setDb(database);
       });
@@ -169,6 +174,7 @@ function App() {
     } catch (error) {
       void error;
     }
+    // Retry with a fresh DB handle.
     const nextDb = await openCostsDB();
     setDb(nextDb);
     await nextDb.addCost(cost);
@@ -269,6 +275,7 @@ function App() {
       <PieChartCard
         data={pieData}
         currency={filters.currency}
+        // Display the selected period.
         periodLabel={`${monthLabels[filters.month - 1]} ${filters.year}`}
       />
     </Grid>
@@ -474,19 +481,16 @@ function SectionCard({ title, subtitle, children }) {
 
 // Navigation button row for view switching.
 function NavTabs({ view, onNavigate }) {
+  // Tab change handler.
   const handleChange = (event, next) => {
     void event;
     onNavigate(next);
   };
   return (
-    <Tabs
-      value={view}
-      onChange={handleChange}
-      className="nav-tabs"
-    >
-      <Tab label="Home" value="home" className="nav-tabs__tab" />
-      <Tab label="Charts" value="charts" className="nav-tabs__tab" />
-      <Tab label="Rates / Settings" value="settings" className="nav-tabs__tab" />
+    // Tab list with accent indicator.
+    <Tabs value={view} onChange={handleChange} className="nav-tabs">
+      <Tab label="Home" value="home" className="nav-tabs__tab" /><Tab label="Charts" value="charts"
+        className="nav-tabs__tab" /><Tab label="Rates / Settings" value="settings" className="nav-tabs__tab" />
     </Tabs>
   );
 }

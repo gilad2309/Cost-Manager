@@ -22,10 +22,8 @@ function ReportTable({ report }) {
   // Render table rows for each cost item.
   const rows = report.costs.map((row) => (
     <TableRow key={`${row.category}-${row.description}-${row.Date.day}`}>
-      <TableCell>{row.Date.day}</TableCell>
-      <TableCell>{row.category}</TableCell>
-      <TableCell>{row.description}</TableCell>
-      <TableCell>{row.currency}</TableCell>
+      <TableCell>{row.Date.day}</TableCell><TableCell>{row.category}</TableCell>
+      <TableCell>{row.description}</TableCell><TableCell>{row.currency}</TableCell>
       <TableCell align="right">{row.sum.toFixed(2)}</TableCell>
     </TableRow>
   ));

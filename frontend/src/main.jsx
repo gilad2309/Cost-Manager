@@ -13,6 +13,7 @@ import App from './app.jsx';
 
 // Theme for a clean, professional dashboard aesthetic.
 const theme = createTheme({
+  // Brand colors and base surfaces.
   palette: {
     mode: 'light',
     primary: { main: '#0f2a43', contrastText: '#ffffff' },
@@ -21,48 +22,60 @@ const theme = createTheme({
     text: { primary: '#0f172a', secondary: '#55627a' },
     divider: '#e1e6ef',
   },
+  // Type scale and font families.
   typography: {
     fontFamily: '"IBM Plex Sans", "Segoe UI", Arial, sans-serif',
+    // Heading family overrides.
     h1: { fontFamily: '"Sora", "IBM Plex Sans", sans-serif', fontWeight: 700 },
     h2: { fontFamily: '"Sora", "IBM Plex Sans", sans-serif', fontWeight: 700 },
     h3: { fontFamily: '"Sora", "IBM Plex Sans", sans-serif', fontWeight: 700 },
     h4: { fontFamily: '"Sora", "IBM Plex Sans", sans-serif', fontWeight: 700 },
     h5: { fontFamily: '"Sora", "IBM Plex Sans", sans-serif', fontWeight: 700 },
     h6: { fontFamily: '"Sora", "IBM Plex Sans", sans-serif', fontWeight: 700 },
+    // Button casing and weight.
     button: { textTransform: 'none', fontWeight: 600 },
   },
+  // Shared radius scale.
   shape: { borderRadius: 16 },
+  // Component-level defaults and overrides.
   components: {
+    // AppBar tone cleanup.
     MuiAppBar: {
       styleOverrides: {
         root: { backgroundImage: 'none' },
       },
     },
+    // Paper surfaces without gradients.
     MuiPaper: {
       styleOverrides: {
         root: { backgroundImage: 'none' },
       },
     },
+    // Card elevation and borders.
     MuiCard: {
       styleOverrides: {
         root: {
           borderRadius: 18,
           border: '1px solid #e1e6ef',
+          // Elevated card shadow.
           boxShadow: '0 18px 40px rgba(15, 23, 42, 0.08)',
         },
       },
     },
+    // Button sizing and corners.
     MuiButton: {
       defaultProps: { disableElevation: true },
       styleOverrides: {
         root: { borderRadius: 12, paddingInline: 18 },
       },
     },
+    // Table header emphasis.
     MuiTableCell: {
       styleOverrides: {
         head: { fontWeight: 600, color: '#0f172a' },
       },
     },
+    // Table row zebra striping.
     MuiTableRow: {
       styleOverrides: {
         root: {
@@ -70,9 +83,11 @@ const theme = createTheme({
         },
       },
     },
+    // Compact input sizing.
     MuiTextField: {
       defaultProps: { size: 'small' },
     },
+    // Divider tone.
     MuiDivider: {
       styleOverrides: {
         root: { borderColor: '#e1e6ef' },
