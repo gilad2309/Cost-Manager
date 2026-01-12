@@ -1,4 +1,6 @@
 // Pie chart for category totals.
+// React hooks for render timing.
+import { useEffect, useState } from 'react';
 // Chart.js React wrapper.
 import { Pie } from 'react-chartjs-2';
 // MUI card components.
@@ -10,6 +12,31 @@ import { alpha, useTheme } from '@mui/material/styles';
 
 function PieChartCard({ data, currency, periodLabel }) {
   const theme = useTheme();
+  const [renderChart, setRenderChart] = useState(false);
+  // Wait for fonts/layout to settle before mounting the chart canvas.
+  useEffect(() => {
+    let isActive = true;
+    const settleLayout = async () => {
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (error) {
+          void error;
+        }
+      }
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (isActive) {
+            setRenderChart(true);
+          }
+        });
+      });
+    };
+    settleLayout();
+    return () => {
+      isActive = false;
+    };
+  }, []);
   // Empty state guard.
   if (!data || data.length === 0) {
     return (
@@ -72,7 +99,9 @@ function PieChartCard({ data, currency, periodLabel }) {
     <CardContent>
       <Typography variant="h6" gutterBottom>Category Breakdown</Typography>
       {periodLabel ? (<Typography variant="body2" color="text.secondary" gutterBottom>{periodLabel}</Typography>) : null}
-      <Box className="pie-chart__plot"><Pie data={chartData} options={chartOptions} /></Box>
+      <Box className="pie-chart__plot">
+        {renderChart ? <Pie data={chartData} options={chartOptions} /> : null}
+      </Box>
     </CardContent>
   );
   // Render the chart card.

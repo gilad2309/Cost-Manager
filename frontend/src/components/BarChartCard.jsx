@@ -1,4 +1,6 @@
 // Bar chart showing totals per month.
+// React hooks for render timing.
+import { useEffect, useState } from 'react';
 // Chart.js React wrapper.
 import { Bar } from 'react-chartjs-2';
 // MUI card components.
@@ -13,6 +15,31 @@ const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 
 function BarChartCard({ data, currency }) {
   const theme = useTheme();
+  const [renderChart, setRenderChart] = useState(false);
+  // Wait for fonts/layout to settle before mounting the chart canvas.
+  useEffect(() => {
+    let isActive = true;
+    const settleLayout = async () => {
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (error) {
+          void error;
+        }
+      }
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (isActive) {
+            setRenderChart(true);
+          }
+        });
+      });
+    };
+    settleLayout();
+    return () => {
+      isActive = false;
+    };
+  }, []);
   // When no totals exist, render a friendly message.
   if (!data || !data.totals || data.totals.every((v) => v === 0)) {
     return (
@@ -72,7 +99,9 @@ function BarChartCard({ data, currency }) {
       <Typography variant="body2" color="text.secondary" gutterBottom sx={{ lineHeight: 1.5, pb: 0.25 }}>
         Totals shown in {currency}
       </Typography>
-      <Box className="bar-chart__plot"><Bar data={chartData} options={chartOptions} /></Box>
+      <Box className="bar-chart__plot">
+        {renderChart ? <Bar data={chartData} options={chartOptions} /> : null}
+      </Box>
     </CardContent>
   );
   // Render the chart card.
